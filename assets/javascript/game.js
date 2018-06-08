@@ -12,29 +12,20 @@ var guessesSoFar = [];
 var letterPicked = null;
 var randomCarChar = carChar[Math.floor(Math.random() * carChar.length)];
 var charHold = [];
-var html = "<p>";
+var html = "<span><p>";
 
+console.log(randomCarChar);
 function letterToWord() {
-    for (var i = 0, k = 0; i < randomCarChar.length; i++) {
-        charHold[k] = randomCarChar.charAt(i);
-        k++
-        if (randomCarChar.charAt(i) != " ") {
-            charHold[k] = false;
+    var charHold = "";
+    for (var i = 0; i < randomCarChar.length; i++) {
+        if (letters.indexOf(randomCarChar[i]) > -1) {
+            charHold += "_";
         } else {
-            charHold[k] = true;
+            charHold += "";
         }
-        k++
+        
     }
-
-}
-
-function consoleLogs() {
-    console.log("wins: " + wins + "\n" + "losses: " + lose + "\n");
-    console.log("guessesLeft: " + guessesLeft + "\n");
-    console.log("guessesSoFar: " + guessesSoFar + "\n");
-    console.log("wordToBeGuessed: " + randomCarChar + "\n");
-    console.log("arrayFromWord: " + charHold + "\n");
-    console.log("--------------------------------");
+    return charHold;
 }
 
 function reset() {
@@ -44,29 +35,62 @@ function reset() {
     charHold = [];
     letterToWord();
 
+    var htmlInitial = "<span><p>";
+
+
     for (var i = 0; i < randomCarChar.length; i++) {
         if (randomCarChar.charAt(i) === " ") {
-            htmlInitial += "_; _;";
+            htmlInitial += "&nbsp; &nbsp;";
         } else {
-            htmlInitial += "_;";
+            htmlInitial += "_&nbsp;";
         }
 
     }
     htmlInitial += "</p>"
-    document.querySelector("#currentWord").innerHTML = htmlInitial;
-    var htmlWins = "<p>" + "Wins: " + win + "</p>";
-    var htmlLosses = "<p>" + "Losses: " + lose + "</p>";
-    var htmlGuessesLeft = " Guesses Left: " + guessesLeft + "</p>";
+    document.querySelector("#currentWord").innerHTML = letterToWord();
+    var htmlWins = "<p><span>" + "Wins: " + win + "</span></p>";
+    var htmlLosses = "<p><span>" + "Losses: " + lose + "</span></p>";
+    var htmlGuessesLeft = "<p><span>Guesses Left: " + guessesLeft + "</span></p>";
     document.querySelector("#winPoint").innerHTML = htmlWins;
     document.querySelector("#losePoint").innerHTML = htmlLosses;
     document.querySelector("#numGuessesLeft").innerHTML = htmlGuessesLeft;
 
-    htmlGuesses = "<p>"
+    htmlGuesses = "<p><span>"
     for (var i = 0; i < guessesSoFar.length; i++) {
         htmlGuesses += guessesSoFar[i] + "_;";
     }
-    htmlGuesses += "</p>";
-    document.querySelector("#guessedLetter").innerHTML = htmlGuesses;
+    htmlGuesses += "</span></p>";
+    document.querySelector("#guessedLtrs").innerHTML = htmlGuesses;
+}
+
+function progress() {
+
+    for (i = 0, k = 0; i < (charHold.length / 2); i++) {
+        if (charHold[k + 1] === true) {
+            html += charHold[k];
+        } else {
+            html += "_";
+        }
+        html += "&nbsp;";
+        k = k + 2;
+    }
+    html += "</p>"
+
+    document.querySelector("#currentWord").innerHTML = letterToWord();
+
+    htmlWins = "<p><span>Wins: " + win + "</span></p>";
+    htmlLosses = "<p><span>Losses: " + lose + "</span></p>";
+    htmlGuessesLeft = "<p><span>Guesses Left: " + guessesLeft + "</span></p>";
+    document.querySelector("#winPoint").innerHTML = htmlWins;
+    document.querySelector("#losePoint").innerHTML = htmlLosses;
+    document.querySelector("#numGuessesLeft").innerHTML = htmlGuessesLeft;
+
+    htmlGuess = "<p><span>"
+    for (var i = 0; i < guessesSoFar.length; i++) {
+        htmlGuess += guessesSoFar[i] + "&nbsp;";
+    }
+    htmlGuess += "</span></p>";
+    document.querySelector("#guessedLtrs").innerHTML = htmlGuess;
 }
 
 function checkUserGuess() {
@@ -79,7 +103,7 @@ function checkUserGuess() {
     if (guessesSoFar.indexOf(letterPicked) < 0 && letters.indexOf(letterPicked) >= 0) {
         guessesSoFar[guessesSoFar.length] = letterPicked;
     }
-
+    console.log(charHold);
     for (var i = 0; i < charHold.length; i++) {
         if (charHold[i] === letterPicked) {
             if (charHold[i + 1] === false) {
@@ -92,41 +116,49 @@ function checkUserGuess() {
 }
 
 function userWins() {
-    if (charHold.indexOf(false) < 0 ) {
+    if (charHold.indexOf(true) < 0) {
         console.log("USER WINS");
         win++;
-    
+        //var charImg = '<img src="assets/images/tommy.gif" class="img-responsive" alt="Rugrats Character">';
+        // document.querySelector("img-change").innerHTML = charImg;
+        reset();
 
     }
-    
+
 }
 
-//user picks letter that is documented by program and logged as letter picked
-var letterPicked = "";
+function userLosses() {
+    if (guessesLeft === 0) {
+        console.log("USER LOSES");
+        lose++;
+        var audio = new Audio("assets/audio/ahhahaha.wav");
+        audio.play();
+        var charImg = '<img src="assets/images/tommy.gif" class="img-responsive" alt="Rugrats Character">';
+        document.querySelector("img-change").innerHTML = charImg;
+        resetGame();
+    }
+
+}
+
+function resetHtml() {
+    html = "<span><p>";
+}
+
+letterToWord();
+
+reset();
+
 document.onkeyup = function (event) {
     letterPicked = String.fromCharCode(event.keyCode).toLowerCase();
 
+    checkUserGuess();
+
+    progress();
+
+    reset();
+
+    userWins();
+
+    userLosses();
+
 }
-
-
-
-
-//if letter is not in character name guessing counts down number of guesses
-
-
-//if letter is in character name guessing is output over letter line 
-
-//user gets 12 guesses then game resets
-
-
-//once 12 guesses is up if all letters are guessed correctly 1 win
-
-
-//if all letters are not guessed before 12 guesses 1 lose 
-
-
-//for each letter guessed correctly positive sound is played
-
-
-//for each letter guessed incorrectly negative sound is played
-
